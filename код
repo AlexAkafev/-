@@ -1,0 +1,583 @@
+Форма «Добавление авто».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AutoRepairShop
+{
+    public partial class CarEdit : Form
+    {
+        int ID;
+        public CarEdit(int ID)
+        {
+            InitializeComponent();
+            this.ID = ID;
+        }
+
+        private void CarEdit_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Владельцы". При необходимости она может быть перемещена или удалена.
+            this.владельцыTableAdapter.Fill(this.autoRepairShopDBDataSet.Владельцы);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Автомобили". При необходимости она может быть перемещена или удалена.
+            this.автомобилиTableAdapter.Fill(this.autoRepairShopDBDataSet.Автомобили);
+
+            if (ID == 0)
+            {
+                автомобилиBindingSource.AddNew();
+            }else
+            {
+                автомобилиBindingSource.Filter = "[id Автомобиля] = " + ID;
+            }
+        }
+
+        private void автомобилиBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.автомобилиBindingSource.EndEdit();
+            this.автомобилиTableAdapter.Update(this.autoRepairShopDBDataSet.Автомобили);
+
+            Close();
+        }
+    }
+}
+
+
+Форма «Авто».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace AutoRepairShop
+{
+    public partial class Cars : Form
+    {
+        public Cars()
+        {
+            InitializeComponent();
+        }
+
+        private void Cars_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.АвтоСписок". 
+            this.автоСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.АвтоСписок);
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //предупреждающее сообщение перед удалением
+            DialogResult dialogResult = MessageBox.Show("Вы уверены что хотите удалить запись и все связанные данные?", "Удаление", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["AutoRepairShop.Properties.Settings.AutoRepairShopDBConnectionString"].ConnectionString;
+                SqlConnection conn = new SqlConnection();
+                SqlCommand cmd = new SqlCommand()
+                conn.ConnectionString = connectionString;
+
+                cmd.Connection = conn;
+                //формируем запрос на удаление из таблицы
+                cmd.CommandText = "DELETE FROM Автомобили WHERE [id Автомобиля] = @ID";
+                cmd.Parameters.AddWithValue("@ID", int.Parse(автоСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+                conn.Open();//открываем подключение
+                cmd.ExecuteNonQuery();//выполняем запрос
+                cmd.Parameters.Clear();//закрываем подключение
+                this.автоСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.АвтоСписок);
+            }
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            CarEdit f = new CarEdit(int.Parse(автоСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+            f.ShowDialog();
+            this.автоСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.АвтоСписок);
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CarEdit f = new CarEdit(0);
+            f.ShowDialog();
+            this.автоСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.АвтоСписок);
+        }
+    }
+}
+«Категория работ».
+ using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Category : Form
+    {
+        public Category()
+        {
+            InitializeComponent();
+        }
+
+        private void категория_работBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.категория_работBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+
+        }
+        private void Category_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Должности". 
+            this.должностиTableAdapter.Fill(this.autoRepairShopDBDataSet.Должности);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Категория_работ".
+            this.категория_работTableAdapter.Fill(this.autoRepairShopDBDataSet.Категория_работ);
+        }
+    }
+«Дисконтная карта».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Discounts : Form
+    {
+        public Discounts()
+        {
+            InitializeComponent();
+        }
+        private void дисконтная_картаBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.дисконтная_картаBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+        }
+        private void Discounts_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Дисконтная_карта". 
+            this.дисконтная_картаTableAdapter.Fill(this.autoRepairShopDBDataSet.Дисконтная_карта);
+        }
+    }
+}
+ «Редактирования выполненной работы».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class DoneJobEdit : Form
+    {
+
+
+        int ID;
+        public DoneJobEdit(int ID)
+        {
+            InitializeComponent();
+            this.ID = ID;
+        }
+        private void DoneJobEdit_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Категория_работ". 
+            this.категория_работTableAdapter.Fill(this.autoRepairShopDBDataSet.Категория_работ);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Оборудование". 
+            this.оборудованиеTableAdapter.Fill(this.autoRepairShopDBDataSet.Оборудование);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Запчасти". 
+            this.запчастиTableAdapter.Fill(this.autoRepairShopDBDataSet.Запчасти);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Сотрудники".
+            this.сотрудникиTableAdapter.Fill(this.autoRepairShopDBDataSet.Сотрудники);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Автомобили". 
+            this.автомобилиTableAdapter.Fill(this.autoRepairShopDBDataSet.Автомобили);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Выполненые_работы".
+   this.выполненые_работыTableAdapter.Fill(this.autoRepairShopDBDataSet.Выполненые_работы);
+            if (ID == 0)
+            {
+                выполненые_работыBindingSource.AddNew();
+            }else
+            {
+                выполненые_работыBindingSource.Filter = "[id работы] = " + ID;
+            }
+        }
+        private void выполненые_работыBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.выполненые_работыBindingSource.EndEdit();
+            this.выполненые_работыTableAdapter.Update(this.autoRepairShopDBDataSet.Выполненые_работы);
+            Close();
+        }
+    }
+}
+
+
+«Выполненная работа».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class DoneJobs : Form
+    {
+        public DoneJobs()
+        {
+            InitializeComponent();
+        }
+        private void DoneJobs_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.ВыполненныеРаботыСписок".       this.выполненныеРаботыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВыполненныеРаботыСписок);
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //предупреждающее сообщение перед удалением
+            DialogResult dialogResult = MessageBox.Show("Вы уверены что хотите удалить запись и все связанные данные?", "Удаление", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.Yes)
+            {
+                string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["AutoRepairShop.Properties.Settings.AutoRepairShopDBConnectionString"].ConnectionString;
+                SqlConnection conn = new SqlConnection();
+                SqlCommand cmd = new SqlCommand();
+                conn.ConnectionString = connectionString;
+                cmd.Connection = conn;
+                //формируем запрос на удаление из таблицы
+                cmd.CommandText = "DELETE FROM [Выполненые работы] WHERE [id работы] = @ID";
+                cmd.Parameters.AddWithValue("@ID", int.Parse(выполненныеРаботыСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+                conn.Open();//открываем подключение
+                cmd.ExecuteNonQuery();//выполняем запрос
+                cmd.Parameters.Clear();//закрываем подключение               this.выполненныеРаботыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВыполненныеРаботыСписок);
+            }
+        }
+        private void button2_Click(object sender, EventArgs e)
+
+        {
+            DoneJobEdit f = new DoneJobEdit(int.Parse(выполненныеРаботыСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+            f.ShowDialog();
+            this.выполненныеРаботыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВыполненныеРаботыСписок);
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DoneJobEdit f = new DoneJobEdit(0);
+            f.ShowDialog();
+this.выполненныеРаботыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВыполненныеРаботыСписок);
+        }
+    }
+}
+«Сотрудники».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Employees : Form
+    {
+        public Employees()
+        {
+            InitializeComponent();
+        }
+
+        private void сотрудникиBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.сотрудникиBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+        }
+        private void Employees_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Должности".  
+            this.должностиTableAdapter.Fill(this.autoRepairShopDBDataSet.Должности);
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Сотрудники".
+            this.сотрудникиTableAdapter.Fill(this.autoRepairShopDBDataSet.Сотрудники);
+        }
+    }
+}
+
+«Оборудование».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Equipments : Form
+    {
+        public Equipments()
+        {
+            InitializeComponent();
+        }
+        private void оборудованиеBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.оборудованиеBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+        }
+        private void Equipments_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Оборудование".
+            this.оборудованиеTableAdapter.Fill(this.autoRepairShopDBDataSet.Оборудование);
+        }
+    }
+}
+Главная форма.
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Form1 : Form
+    {
+        string title_window = "Автосервис";
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+        private void дисконтныеКартыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+            Discounts f = new Discounts();
+            f.ShowDialog();
+        }
+        private void должностиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Posts f = new Posts();
+            f.ShowDialog();
+        }
+        private void запчастиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Parts f = new Parts();
+            f.ShowDialog();
+        }
+        private void категорииРаботToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Category f = new Category();
+            f.ShowDialog();
+        }
+        private void сотрудникиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Employees f = new Employees();
+            f.ShowDialog();
+        }
+        private void оборудованиеToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Equipments f = new Equipments();
+            f.ShowDialog();
+        }
+
+        private void выходToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void setChildForm(Form objForm, Panel p)
+        {
+            p.Controls.Clear();
+            objForm.TopLevel = false;
+            p.Controls.Add(objForm);
+            objForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            objForm.Dock = DockStyle.Fill;
+            objForm.Show();
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Vladelci f = new Vladelci();
+            setChildForm(f, this.panel2);
+            Text = title_window + " - " + ((Button)sender).Text;
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Cars f = new Cars();
+            setChildForm(f, this.panel2);
+            Text = title_window + " - " + ((Button)sender).Text;
+        
+}
+        private void button3_Click(object sender, EventArgs e)
+        {
+            DoneJobs f = new DoneJobs();
+            setChildForm(f, this.panel2);
+            Text = title_window + " - " + ((Button)sender).Text;
+        }
+    }
+}
+«Запчасти».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Parts : Form
+    {
+        public Parts()
+        {
+            InitializeComponent();
+        }
+        private void запчастиBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.запчастиBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+
+        }
+        private void Parts_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Запчасти". 
+            this.запчастиTableAdapter.Fill(this.autoRepairShopDBDataSet.Запчасти);
+
+        }
+    }
+}
+«Должности».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+
+{
+    public partial class Posts : Form
+    {
+        public Posts()
+        {
+            InitializeComponent();
+        }
+        private void должностиBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+            this.Validate();
+            this.должностиBindingSource.EndEdit();
+            this.tableAdapterManager.UpdateAll(this.autoRepairShopDBDataSet);
+        }
+        private void Posts_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.Должности".
+            this.должностиTableAdapter.Fill(this.autoRepairShopDBDataSet.Должности);
+        }
+    }
+}
+«Владельцы».
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+namespace AutoRepairShop
+{
+    public partial class Vladelci : Form
+    {
+        public Vladelci()
+        {
+            InitializeComponent();
+        }
+        private void владельцыBindingNavigatorSaveItem_Click(object sender, EventArgs e)
+        {
+        }
+        private void Vladelci_Load(object sender, EventArgs e)
+        {
+            // TODO: данная строка кода позволяет загрузить данные в таблицу "autoRepairShopDBDataSet.ВладельцыСписок". 
+            this.владельцыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВладельцыСписок);
+        }
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //предупреждающее сообщение перед удалением
+            DialogResult dialogResult = MessageBox.Show("Вы уверены что хотите удалить запись и все связанные данные?", "Удаление", MessageBoxButtons.YesNo);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["AutoRepairShop.Properties.Settings.AutoRepairShopDBConnectionString"].ConnectionString;
+                SqlConnection conn = new SqlConnection();
+                SqlCommand cmd = new SqlCommand();
+                conn.ConnectionString = connectionString;
+                cmd.Connection = conn;
+                //формируем запрос на удаление из таблицы
+                cmd.CommandText = "DELETE FROM Владельцы WHERE [id Владельца] = @ID";
+                cmd.Parameters.AddWithValue("@ID", int.Parse(владельцыСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+                conn.Open();//открываем подключение
+                cmd.ExecuteNonQuery();//выполняем запрос
+                cmd.Parameters.Clear();//закрываем подключение
+this.владельцыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВладельцыСписок);
+            }
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            VladelciEdit f = new VladelciEdit(int.Parse(владельцыСписокDataGridView.CurrentRow.Cells[0].Value.ToString()));
+            f.ShowDialog();
+            this.владельцыСписокTableAdapter.Fill(this.autoRepairShopDBDataSet.ВладельцыСписок);
+        }
+        private void button1_Click(object sender, EventArgs e)
+        { 
